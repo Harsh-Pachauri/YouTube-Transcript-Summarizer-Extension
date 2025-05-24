@@ -1,5 +1,5 @@
 (async function () {
-  
+
   // Create element with attributes and children
   function createEl(tag, attrs = {}, children = []) {
     const el = document.createElement(tag);
@@ -46,13 +46,13 @@
     });
   }
 
-  
-  
+
+
   // Insert sidebar panel
   function insertSidebar() {
     // If already inserted
     if (document.getElementById('ytTranscriptSidebar')) return;
-    
+
     const sidebar = createEl('div', {
       id: 'ytTranscriptSidebar',
       style: {
@@ -76,20 +76,20 @@
 
     const title = createEl('h2', { text: 'YouTube Transcript', style: { margin: '0 0 10px 0', fontSize: '18px' } });
     sidebar.appendChild(title);
-    
+
     const errorMsg = createEl('div', { id: 'ytErrorMsg', style: { display: 'none', color: 'red', marginBottom: '10px' } });
     sidebar.appendChild(errorMsg);
-    
+
     const transcriptContent = createEl('div', {
       id: 'ytTranscriptContent',
       style: { flexGrow: '1', overflowY: 'auto', whiteSpace: 'pre-wrap', marginBottom: '10px' }
     });
     sidebar.appendChild(transcriptContent);
-    
+
     // Buttons container
     const buttonsDiv = createEl('div', { style: { display: 'flex', gap: '6px', flexWrap: 'wrap' } });
     sidebar.appendChild(buttonsDiv);
-    
+
     // Copy Transcript button
     const copyBtn = createEl('button', {
       text: 'Copy Transcript',
@@ -116,7 +116,7 @@
       }
     });
     buttonsDiv.appendChild(copyBtn);
-    
+
     // Settings button
     const settingsBtn = createEl('button', {
       text: 'Settings',
@@ -134,7 +134,7 @@
       }
     });
     buttonsDiv.appendChild(settingsBtn);
-    
+
     // Summarize button
     const summarizeBtn = createEl('button', {
       text: 'Summarize',
@@ -152,43 +152,76 @@
       }
     });
     buttonsDiv.appendChild(summarizeBtn);
-    
+
     document.body.appendChild(sidebar);
   }
+let currentVideoUrl = location.href;
+
+// Check for video URL changes every second
+setInterval(() => {
+  if (location.href !== currentVideoUrl) {
+    currentVideoUrl = location.href;
+    onVideoChanged();
+  }
+}, 1000);
+
+// Function to run when video changes
+async function onVideoChanged() {
+  console.log('[YT Transcript] Video changed. Refreshing transcript...');
+
+  // Optionally, reset or hide previous transcript
+  const contentDiv = document.getElementById('ytTranscriptContent');
+  const errorDiv = document.getElementById('ytErrorMsg');
+  if (contentDiv) contentDiv.textContent = '';
+  if (errorDiv) {
+    errorDiv.style.display = 'block';
+    errorDiv.textContent = 'Loading new video transcript...';
+  }
+
+  // Try to reload transcript after a short delay (give YouTube time to load)
+  setTimeout(() => {
+    (async () => {
+      await openTranscriptPanel();
+      displayTranscript();
+    })();
+  }, 10000); // adjust delay as needed
+}
+
+
 
   function insertToggleSidebarButton() {
-  if (document.getElementById('ytToggleSidebarBtn')) return;
+    if (document.getElementById('ytToggleSidebarBtn')) return;
 
-  const toggleBtn = createEl('button', {
-    id: 'ytToggleSidebarBtn',
-    text: 'Toggle Sidebar',
-    style: {
-      position: 'fixed',
-      top: '10px',
-      right: '10px',
-      zIndex: '11000',
-      padding: '6px 10px',
-      backgroundColor: '#1a73e8',
-      color: 'white',
-      border: 'none',
-      borderRadius: '4px',
-      cursor: 'pointer',
-      userSelect: 'none',
-      fontSize: '13px',
-    },
-    onclick: () => {
-      const sidebar = document.getElementById('ytTranscriptSidebar');
-      if (!sidebar) return;
-      if (sidebar.style.display === 'none') {
-        sidebar.style.display = 'flex';
-      } else {
-        sidebar.style.display = 'none';
+    const toggleBtn = createEl('button', {
+      id: 'ytToggleSidebarBtn',
+      text: 'Toggle Sidebar',
+      style: {
+        position: 'fixed',
+        top: '10px',
+        right: '10px',
+        zIndex: '11000',
+        padding: '6px 10px',
+        backgroundColor: '#1a73e8',
+        color: 'white',
+        border: 'none',
+        borderRadius: '4px',
+        cursor: 'pointer',
+        userSelect: 'none',
+        fontSize: '13px',
+      },
+      onclick: () => {
+        const sidebar = document.getElementById('ytTranscriptSidebar');
+        if (!sidebar) return;
+        if (sidebar.style.display === 'none') {
+          sidebar.style.display = 'flex';
+        } else {
+          sidebar.style.display = 'none';
+        }
       }
-    }
-  });
+    });
 
-  document.body.appendChild(toggleBtn);
-}
+    document.body.appendChild(toggleBtn);
+  }
 
   function extractTranscriptSegments() {
     // The transcript container id might be 'segments-container' or 'segments'
