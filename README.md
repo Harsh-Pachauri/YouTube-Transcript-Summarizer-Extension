@@ -65,6 +65,6 @@ youtube-transcript-summarizer/
 
 ## 🙌 Author
 
-Built by [Harsh-Pachauri](https://github.com/Harsh Pachauri)
+Built by [Harsh-Pachauri](https://github.com/Harsh-Pachauri)
 
 If you find this useful, give it a ⭐ and share!
